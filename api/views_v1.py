@@ -2,6 +2,7 @@
 # from django.shortcuts import get_object_or_404
 # from django.views.decorators.csrf import csrf_exempt
 # from res.utils import *
+from json import encoder
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -94,7 +95,6 @@ class userView(APIView):
         return HttpResponse(response, content_type='text/json')
 
     def delete(self, request, user_id):
-        print("\n\n---"+str(user_id)+"---\n\n")
         try :
             user = User.objects.get(user_id=user_id)
         except:
@@ -230,8 +230,7 @@ class clientView(APIView):
             payload['address2'] = ""
 
         random = hashlib.md5(datetime.now().strftime("%H:%M:%S").encode()).hexdigest()[:8]
-        secure_pass = bcrypt.hashpw(payload['password'].encode(), bcrypt.gensalt())
-        print(secure_pass)
+        secure_pass = bcrypt.hashpw(payload['password'].encode('utf8'), bcrypt.gensalt())
 
         client = Client(id=client_id,
                         name=payload['name'],
@@ -241,7 +240,7 @@ class clientView(APIView):
                         adress1=payload['adress1'],
                         adress2=payload['adress2'],
                         town=payload['town'],
-                        password=secure_pass,
+                        password=secure_pass.decode('utf8'),
                         userlevel=1,
                         passchange=False,
                         randomid=random
@@ -259,7 +258,28 @@ class clientView(APIView):
                 })
 
         return HttpResponse(response, content_type='text/json')
-    
+
+    def delete(self, request, client_id):
+        try :
+            client = Client.objects.get(id=client_id)
+        except:
+            response = json.dumps({
+                "success":False,
+                "data": f"Client id {client_id} not in database",
+                })
+            return HttpResponse(response, content_type='text/json')
+        try:
+            client.delete()
+            response = json.dumps({
+                "success":True,
+                "data": f"Client {client_id} deleted",
+                })
+        except:
+            response = json.dumps({
+                "success": False,
+                "data":f"Unable to delete client {client_id}"
+                })
+        return HttpResponse(response, content_type='text/json')
 
 class allClientView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -297,6 +317,18 @@ class allClientView(APIView):
                 })
         return HttpResponse(response, content_type='text/json')
 
+    def delete(self, request):
+        clients = Client.objects.all()
+        client_count = 0
+        for client in clients:
+            client.delete()
+            client_count += 1
+        response = json.dumps({
+            "success":True,
+            "data": f"All clients have been flushed ! ({client_count})",
+            })
+        return HttpResponse(response, content_type='text/json')
+
 class connect(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -311,9 +343,6 @@ class connect(APIView):
             return HttpResponse(response, content_type='text/json')
 
         try:
-            print(payload['mail'])
-            payload['mail'] = payload['mail'].encode()
-            print(payload['mail'])
             client = Client.objects.get(mail=payload['mail'])
         except:
             response = json.dumps({
@@ -322,7 +351,7 @@ class connect(APIView):
                 })
             return HttpResponse(response, content_type='text/json')
 
-        if bcrypt.checkpw(payload['password'], client.password):
+        if bcrypt.checkpw(payload['password'].encode('utf8'), client.password.encode('utf8')):
             response = json.dumps({
                 "success":True,
                 "data": "Connected",
