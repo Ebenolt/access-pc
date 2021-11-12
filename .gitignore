@@ -6,7 +6,7 @@ res/examples.py
 */__pycache__/
 .gitsecret/keys/random_seed
 access-pc-*
-res/access-pc API.postman_collection.json
+res/*.postman_collection.json
 *.drawio
 .DS_Store
 S.gpg-agent*
