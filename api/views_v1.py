@@ -8,7 +8,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 import json, hashlib, bcrypt
 from datetime import datetime
-from api.models import User
 from api.models import Client
 from api.models import Devis
 from api.models import Facture
@@ -32,127 +31,6 @@ class hello(APIView):
                 "data": "Not authenticated"
             })
         return HttpResponse(response, content_type='text/json')
-
-class userView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request, user_id):
-        try:
-            user = User.objects.get(user_id=user_id)
-            response = json.dumps({
-                "success":True,
-                "data":{
-                    "Name":user.name,
-                    "Last Name": user.lastname
-                }
-                })
-        except:
-            response = json.dumps({
-                "success":False,
-                "data":"No user with this id"
-                })
-        return HttpResponse(response, content_type='text/json')
-
-    def post(self, request): 
-        try :
-            payload = json.loads(request.body)
-        except: 
-                response = json.dumps({
-                "success":False,
-                "data": "Missing JSON body / Missformated JSON",
-                })
-                return HttpResponse(response, content_type='text/json')
-
-        for elem in ['name', 'lastname']:
-            if elem not in payload:
-                response = json.dumps({
-                "success":False,
-                "data": f"Missing parameter {elem}",
-                })
-                return HttpResponse(response, content_type='text/json')
-
-        u_id = 0
-        
-        users = User.objects.all()
-        for user in users:
-            if user.id >= u_id:
-                print(user.name, user.id)
-                u_id = user.id +1
-        
-        user = User(name = payload['name'], lastname = payload['lastname'], user_id=u_id)
-        try:
-            user.save()
-            response = json.dumps({
-                "success":True,
-                "data": f"User {payload['name']} {payload['lastname']} saved, ID: {u_id}",
-                })
-        except:
-            response = json.dumps({
-                "success": False,
-                "data":"Unable to save user"
-                })
-
-        return HttpResponse(response, content_type='text/json')
-
-    def delete(self, request, user_id):
-        try :
-            user = User.objects.get(user_id=user_id)
-        except:
-            response = json.dumps({
-                "success":False,
-                "data": f"User id {user_id} not in database",
-                })
-            return HttpResponse(response, content_type='text/json')
-        try:
-            user.delete()
-            response = json.dumps({
-                "success":True,
-                "data": f"User {user_id} deleted",
-                })
-        except:
-            response = json.dumps({
-                "success": False,
-                "data":f"Unable to delete user {user_id}"
-                })
-        return HttpResponse(response, content_type='text/json')
-
-class allUsersView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        try:
-            users = User.objects.all()
-            response_data = {
-                "success" : True,
-                "data": []
-            }
-            for user in users:
-                user_data = {
-                    "id" : user.user_id,
-                    "name": user.name,
-                    "lastname": user.lastname
-                }
-                response_data['data'].append(user_data)
-            response = json.dumps(response_data)
-        except:
-            response = json.dumps({
-                "success": False,
-                "data":"No user found"
-                })
-        return HttpResponse(response, content_type='text/json')
-
-    def delete(self, request):
-        users = User.objects.all()
-        user_count = 0
-        for user in users:
-            user.delete()
-            user_count += 1
-        response = json.dumps({
-            "success":True,
-            "data": f"All users have been flushed ! ({user_count})",
-            })
-        return HttpResponse(response, content_type='text/json')
-
 
 class clientView(APIView):
     permission_classes = (IsAuthenticated,)

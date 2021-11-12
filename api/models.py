@@ -1,14 +1,4 @@
-from os import name
 from django.db import models
-
-class User(models.Model):
-    name = models.CharField(max_length=32)
-    lastname = models.CharField(max_length=32)
-    user_id= models.IntegerField()
-
-    def __str__(self):
-        return f"{self.name} {self.lastname} - {self.user_id}"
-
 class Client(models.Model):
     id = models.IntegerField(primary_key=True, unique=True)
     name = models.CharField(max_length=32)
