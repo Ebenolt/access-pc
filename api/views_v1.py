@@ -6,7 +6,9 @@ from json import encoder
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-import json, hashlib, bcrypt
+import json
+import hashlib
+import bcrypt
 from datetime import datetime
 from api.models import Client
 from api.models import Devis
@@ -18,19 +20,20 @@ from api.models import Tarif
 
 class hello(APIView):
     permission_classes = (IsAuthenticated,)
-    
+
     def get(self, request):
         if (IsAuthenticated):
             response = json.dumps({
-                "success":False,
+                "success": False,
                 "data": "Bad endpoint, missing parameters"
             })
         else:
             response = json.dumps({
-                "success":False,
+                "success": False,
                 "data": "Not authenticated"
             })
         return HttpResponse(response, content_type='text/json')
+
 
 class clientView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -39,8 +42,8 @@ class clientView(APIView):
         try:
             client = Client.objects.get(id=client_id)
             response = json.dumps({
-                "success":True,
-                "data":{
+                "success": True,
+                "data": {
                     "id": client.id,
                     "Name": client.name,
                     "Last Name": client.lastname,
@@ -55,23 +58,23 @@ class clientView(APIView):
                     "Passchange": client.passchange,
                     "Randomid": client.randomid,
                 }
-                })
+            })
         except:
             response = json.dumps({
-                "success":False,
-                "data":"No client with this id"
-                })
+                "success": False,
+                "data": "No client with this id"
+            })
         return HttpResponse(response, content_type='text/json')
 
-    def post(self, request): 
-        try :
+    def post(self, request):
+        try:
             payload = json.loads(request.body)
-        except: 
-                response = json.dumps({
-                "success":False,
+        except:
+            response = json.dumps({
+                "success": False,
                 "data": "Missing JSON body / Missformated JSON",
-                })
-                return HttpResponse(response, content_type='text/json')
+            })
+            return HttpResponse(response, content_type='text/json')
 
         missing = []
         for elem in Client.__dict__.keys():
@@ -88,10 +91,10 @@ class clientView(APIView):
                                                     'userlevel',
                                                     'randomid']:
                 missing.append(elem)
-            
+
         if len(missing) > 0:
             response = json.dumps({
-                "success":False,
+                "success": False,
                 "data": {
                     "Missing parameters": missing,
                 }
@@ -102,13 +105,15 @@ class clientView(APIView):
         clients = Client.objects.all()
         for client in clients:
             if client.id >= client_id:
-                client_id = client.id +1
+                client_id = client.id + 1
 
         if not('adress2' in payload):
             payload['address2'] = ""
 
-        random = hashlib.md5(datetime.now().strftime("%H:%M:%S").encode()).hexdigest()[:8]
-        secure_pass = bcrypt.hashpw(payload['password'].encode('utf8'), bcrypt.gensalt())
+        random = hashlib.md5(datetime.now().strftime(
+            "%H:%M:%S").encode()).hexdigest()[:8]
+        secure_pass = bcrypt.hashpw(
+            payload['password'].encode('utf8'), bcrypt.gensalt())
 
         client = Client(id=client_id,
                         name=payload['name'],
@@ -122,42 +127,80 @@ class clientView(APIView):
                         userlevel=1,
                         passchange=False,
                         randomid=random
-        )
+                        )
         try:
             client.save()
             response = json.dumps({
-                "success":True,
+                "success": True,
                 "data": f"Client {client.name} {client.lastname} ({client.mail}) saved, ID: {client_id}",
-                })
+            })
         except:
             response = json.dumps({
                 "success": False,
-                "data":"Unable to save client"
-                })
+                "data": "Unable to save client"
+            })
+
+        return HttpResponse(response, content_type='text/json')
+
+    def patch(self, request):
+        try:
+            payload = json.loads(request.body)
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": "Missing JSON body / Missformated JSON",
+            })
+            return HttpResponse(response, content_type='text/json')
+
+        try:
+            client = Client.objects.get(id=payload['id'])
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": f"User id {payload['id']} not found",
+            })
+            return HttpResponse(response, content_type='text/json')
+
+        for key, value in payload.items():
+            if key not in ['id', 'password']:
+                setattr(client, key, value)
+
+        try:
+            client.save()
+            response = json.dumps({
+                "success": True,
+                "data": f"Client {client.name} {client.lastname} ({client.mail}) saved",
+            })
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": "Unable to save client"
+            })
 
         return HttpResponse(response, content_type='text/json')
 
     def delete(self, request, client_id):
-        try :
+        try:
             client = Client.objects.get(id=client_id)
         except:
             response = json.dumps({
-                "success":False,
+                "success": False,
                 "data": f"Client id {client_id} not in database",
-                })
+            })
             return HttpResponse(response, content_type='text/json')
         try:
             client.delete()
             response = json.dumps({
-                "success":True,
+                "success": True,
                 "data": f"Client {client_id} deleted",
-                })
+            })
         except:
             response = json.dumps({
                 "success": False,
-                "data":f"Unable to delete client {client_id}"
-                })
+                "data": f"Unable to delete client {client_id}"
+            })
         return HttpResponse(response, content_type='text/json')
+
 
 class allClientView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -184,15 +227,15 @@ class allClientView(APIView):
                 })
 
             response = json.dumps({
-                "success":True,
-                "data":response_data,
+                "success": True,
+                "data": response_data,
             })
 
         except:
             response = json.dumps({
-                "success":False,
-                "data":"No clients"
-                })
+                "success": False,
+                "data": "No clients"
+            })
         return HttpResponse(response, content_type='text/json')
 
     def delete(self, request):
@@ -202,22 +245,23 @@ class allClientView(APIView):
             client.delete()
             client_count += 1
         response = json.dumps({
-            "success":True,
+            "success": True,
             "data": f"All clients have been flushed ! ({client_count})",
-            })
+        })
         return HttpResponse(response, content_type='text/json')
+
 
 class connect(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        try :
+        try:
             payload = json.loads(request.body)
-        except: 
+        except:
             response = json.dumps({
-                "success":False,
+                "success": False,
                 "data": "Missing JSON body / Missformated JSON",
-                })
+            })
             return HttpResponse(response, content_type='text/json')
 
         try:
@@ -226,22 +270,18 @@ class connect(APIView):
             response = json.dumps({
                 "success": False,
                 "data": "User not found",
-                })
+            })
             return HttpResponse(response, content_type='text/json')
 
         if bcrypt.checkpw(payload['password'].encode('utf8'), client.password.encode('utf8')):
             response = json.dumps({
-                "success":True,
+                "success": True,
                 "data": "Connected",
             })
         else:
             response = json.dumps({
-                "success":False,
+                "success": False,
                 "data": "Please check password",
             })
 
-
         return HttpResponse(response, content_type='text/json')
-
-
-

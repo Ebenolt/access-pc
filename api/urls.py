@@ -10,4 +10,3 @@ urlpatterns = [
     path('v1/client/<int:client_id>', views_v1.clientView.as_view()),
     path('v1/connect/', views_v1.connect.as_view()),
 ]
-
