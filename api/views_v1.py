@@ -18,6 +18,8 @@ from api.models import Tarif
 from res.utils import dateConverter
 
 date_converter = dateConverter()
+
+
 class hello(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -33,6 +35,8 @@ class hello(APIView):
                 "data": "Not authenticated"
             })
         return HttpResponse(response, content_type='text/json')
+
+
 class clientView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -198,6 +202,8 @@ class clientView(APIView):
                 "data": f"Unable to delete client {client_id}"
             })
         return HttpResponse(response, content_type='text/json')
+
+
 class allClientView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -245,28 +251,30 @@ class allClientView(APIView):
             "data": f"All clients have been flushed ! ({client_count})",
         })
         return HttpResponse(response, content_type='text/json')
+
+
 class devisView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, devis_id):
         try:
             devis = Devis.objects.get(id=devis_id)
-            try :
+            try:
                 devis_owner = Client.objects.get(id=devis.owner)
                 owner_data = {
-                        "id": devis_owner.id,
-                        "Name": devis_owner.name,
-                        "Last Name": devis_owner.lastname,
-                        "Mail": devis_owner.mail,
-                        "Phone": devis_owner.phone,
-                        "Address": [devis_owner.adress1,
-                                    devis_owner.adress2,
-                                    devis_owner.town
-                                    ]
-                            }
+                    "id": devis_owner.id,
+                    "Name": devis_owner.name,
+                    "Last Name": devis_owner.lastname,
+                    "Mail": devis_owner.mail,
+                    "Phone": devis_owner.phone,
+                    "Address": [devis_owner.adress1,
+                                devis_owner.adress2,
+                                devis_owner.town
+                                ]
+                }
             except:
                 owner_data = devis.owner
-        
+
             devis_date = date_converter.dateToStr(devis.date, "%d/%m/%Y")
             response = json.dumps({
                 "success": True,
@@ -274,7 +282,7 @@ class devisView(APIView):
                     "id": devis.id,
                     "Owner": owner_data,
                     "Amount": devis.amount,
-                    "Date":devis_date,
+                    "Date": devis_date,
                     "FullID": devis.fullid
                 }
             })
@@ -331,14 +339,15 @@ class devisView(APIView):
         else:
             devis_date = date.today()
 
-        devis_fullid = date_converter.dateToStr(devis_date, "%y%m%d")+str(devis_id)
+        devis_fullid = date_converter.dateToStr(
+            devis_date, "%y%m%d")+str(devis_id)
 
         devis = Devis(id=devis_id,
-                        owner=payload['owner'],
-                        amount=payload['amount'],
-                        date=devis_date,
-                        fullid=devis_fullid
-                        )
+                      owner=payload['owner'],
+                      amount=payload['amount'],
+                      date=devis_date,
+                      fullid=devis_fullid
+                      )
         try:
             devis.save()
             response = json.dumps({
@@ -375,6 +384,8 @@ class devisView(APIView):
                 "data": f"Unable to delete devis {devis_id}"
             })
         return HttpResponse(response, content_type='text/json')
+
+
 class allDevisView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -383,24 +394,24 @@ class allDevisView(APIView):
             deviss = Devis.objects.all()
             response_data = []
             for devis in deviss:
-                try :
+                try:
                     devis_owner = Client.objects.get(id=devis.owner)
                     owner_data = {
-                            "id": devis_owner.id,
-                            "Name": devis_owner.name,
-                            "Last Name": devis_owner.lastname,
-                            "Mail": devis_owner.mail
+                        "id": devis_owner.id,
+                        "Name": devis_owner.name,
+                        "Last Name": devis_owner.lastname,
+                        "Mail": devis_owner.mail
                     }
                 except:
                     owner_data = devis.owner
-            
+
                 devis_date = date_converter.dateToStr(devis.date, "%d/%m/%Y")
-                
+
                 response_data.append({
                     "id": devis.id,
                     "Owner": owner_data,
                     "Amount": devis.amount,
-                    "Date":devis_date,
+                    "Date": devis_date,
                     "FullID": devis.fullid
                 })
 
@@ -415,7 +426,7 @@ class allDevisView(APIView):
                 "data": "No devis"
             })
         return HttpResponse(response, content_type='text/json')
-    
+
     def delete(self, request):
         deviss = Devis.objects.all()
         devis_count = 0
@@ -427,28 +438,30 @@ class allDevisView(APIView):
             "data": f"All devis have been flushed ! ({devis_count})",
         })
         return HttpResponse(response, content_type='text/json')
+
+
 class factureView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, facture_id):
         try:
             facture = Facture.objects.get(id=facture_id)
-            try :
+            try:
                 facture_owner = Client.objects.get(id=facture.owner)
                 owner_data = {
-                        "id": facture_owner.id,
-                        "Name": facture_owner.name,
-                        "Last Name": facture_owner.lastname,
-                        "Mail": facture_owner.mail,
-                        "Phone": facture_owner.phone,
-                        "Address": [facture_owner.adress1,
-                                    facture_owner.adress2,
-                                    facture_owner.town
-                                    ]
-                            }
+                    "id": facture_owner.id,
+                    "Name": facture_owner.name,
+                    "Last Name": facture_owner.lastname,
+                    "Mail": facture_owner.mail,
+                    "Phone": facture_owner.phone,
+                    "Address": [facture_owner.adress1,
+                                facture_owner.adress2,
+                                facture_owner.town
+                                ]
+                }
             except:
                 owner_data = facture.owner
-        
+
             facture_date = date_converter.dateToStr(facture.date, "%d/%m/%Y")
             response = json.dumps({
                 "success": True,
@@ -456,9 +469,9 @@ class factureView(APIView):
                     "id": facture.id,
                     "Owner": owner_data,
                     "Amount": facture.amount,
-                    "Date":facture_date,
-                    "Paid":facture.paid,
-                    "Intent_id":facture.intent_id,
+                    "Date": facture_date,
+                    "Paid": facture.paid,
+                    "Intent_id": facture.intent_id,
                     "FullID": facture.fullid
                 }
             })
@@ -517,16 +530,17 @@ class factureView(APIView):
         else:
             facture_date = date.today()
 
-        facture_fullid = date_converter.dateToStr(facture_date, "%y%m%d")+str(facture_id)
+        facture_fullid = date_converter.dateToStr(
+            facture_date, "%y%m%d")+str(facture_id)
 
         facture = Facture(id=facture_id,
-                        owner=payload['owner'],
-                        amount=payload['amount'],
-                        date=facture_date,
-                        paid=False,
-                        intent_id="",
-                        fullid=facture_fullid
-                        )
+                          owner=payload['owner'],
+                          amount=payload['amount'],
+                          date=facture_date,
+                          paid=False,
+                          intent_id="",
+                          fullid=facture_fullid
+                          )
         try:
             facture.save()
             response = json.dumps({
@@ -579,7 +593,6 @@ class factureView(APIView):
 
         return HttpResponse(response, content_type='text/json')
 
-
     def delete(self, request, facture_id):
         try:
             facture = Facture.objects.get(id=facture_id)
@@ -601,6 +614,8 @@ class factureView(APIView):
                 "data": f"Unable to delete Facture {facture_id}"
             })
         return HttpResponse(response, content_type='text/json')
+
+
 class allFactureView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -609,26 +624,27 @@ class allFactureView(APIView):
             factures = Facture.objects.all()
             response_data = []
             for facture in factures:
-                try :
+                try:
                     facture_owner = Client.objects.get(id=facture.owner)
                     owner_data = {
-                            "id": facture_owner.id,
-                            "Name": facture_owner.name,
-                            "Last Name": facture_owner.lastname,
-                            "Mail": facture_owner.mail
+                        "id": facture_owner.id,
+                        "Name": facture_owner.name,
+                        "Last Name": facture_owner.lastname,
+                        "Mail": facture_owner.mail
                     }
                 except:
                     owner_data = facture.owner
-            
-                facture_date = date_converter.dateToStr(facture.date, "%d/%m/%Y")
-                
+
+                facture_date = date_converter.dateToStr(
+                    facture.date, "%d/%m/%Y")
+
                 response_data.append({
                     "id": facture.id,
                     "Owner": owner_data,
                     "Amount": facture.amount,
-                    "Date":facture_date,
-                    "Paid":facture.paid,
-                    "Intent_id":facture.intent_id,
+                    "Date": facture_date,
+                    "Paid": facture.paid,
+                    "Intent_id": facture.intent_id,
                     "FullID": facture.fullid
                 })
 
@@ -643,7 +659,7 @@ class allFactureView(APIView):
                 "data": "No factures"
             })
         return HttpResponse(response, content_type='text/json')
-    
+
     def delete(self, request):
         factures = Facture.objects.all()
         factures_count = 0
@@ -656,22 +672,24 @@ class allFactureView(APIView):
         })
         return HttpResponse(response, content_type='text/json')
 
+
 class payFactureView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, facture_id):
         response = json.dumps({
-                "success": False,
-                "data": "To be implemented"
-            })
+            "success": False,
+            "data": "To be implemented"
+        })
         return HttpResponse(response, content_type='text/json')
 
     def post(self, request, facture_id):
         response = json.dumps({
-                "success": False,
-                "data": "To be implemented"
-            })
+            "success": False,
+            "data": "To be implemented"
+        })
         return HttpResponse(response, content_type='text/json')
+
 
 class connect(APIView):
     permission_classes = (IsAuthenticated,)

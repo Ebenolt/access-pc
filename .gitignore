@@ -9,6 +9,7 @@ res/*.postman_collection.json
 *.drawio
 .DS_Store
 S.gpg-agent*
+workspace.code-workspace
 
 
 ### GENERATED ###
