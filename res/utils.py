@@ -1,5 +1,6 @@
-import os, datetime, sys, ast
+import os, sys, ast
 from configparser import ConfigParser
+from datetime import datetime, date
 
 class displayer(object):
     BLUE, RED, WHITE, YELLOW, MAGENTA, GREEN, CYAN, END = '\33[94m', '\033[91m', '\33[97m', '\33[93m', '\033[1;35m', '\033[1;32m', '\33[36m', '\033[0m'
@@ -72,3 +73,12 @@ class configReader(object):
                 else:
                     result[str(section)][str(element)] = self.parser[section][element]
         return result
+
+
+class dateConverter():
+        
+    def strToDate(self, str: str, arch: str="%d/%m/%Y") -> date:
+        return datetime.strptime(str, arch)
+    
+    def dateToStr(self, date: date, arch: str="%d/%m/%y") -> str:
+        return date.strftime(arch)
