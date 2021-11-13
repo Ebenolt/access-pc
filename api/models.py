@@ -21,7 +21,7 @@ class Devis(models.Model):
     owner = models.IntegerField()
     amount = models.FloatField()
     date = models.DateField()
-    fullid = models.IntegerField()
+    fullid = models.CharField(max_length=16)
 
     def __str__(self):
         return f"[{self.id}] Devis {self.fullid} - {self.amount}€ (on {self.date} to {self.owner})"
@@ -33,10 +33,10 @@ class Facture(models.Model):
     date = models.DateField()
     paid = models.BooleanField()
     intent_id = models.CharField(max_length=32)
-    fullid = models.IntegerField()
+    fullid = models.CharField(max_length=16)
 
     def __str__(self):
-        return f"[{self.id}] Devis {self.fullid} - {self.amount}€ (on {self.date} to {self.owner} paid : {self.paid})"
+        return f"[{self.id}] Facture {self.fullid} - {self.amount}€ (on {self.date} to {self.owner} paid : {self.paid})"
 
 class Connexion(models.Model):
     id = models.IntegerField(primary_key=True, unique=True)
