@@ -655,7 +655,6 @@ class allFactureView(APIView):
             "data": f"All bills have been flushed ! ({factures_count})",
         })
         return HttpResponse(response, content_type='text/json')
-
 class payFactureView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -672,7 +671,203 @@ class payFactureView(APIView):
                 "data": "To be implemented"
             })
         return HttpResponse(response, content_type='text/json')
+class tarifsView(APIView):
+    permission_classes = (IsAuthenticated,)
 
+    def get(self, request, tarif_id):
+        try:
+            tarif = Tarif.objects.get(id=tarif_id)
+            response = json.dumps({
+                "success": True,
+                "data": {
+                    "id": tarif.id,
+                    "Category": tarif.category,
+                    "Longname": tarif.longname,
+                    "Shortname": tarif.shortname,
+                    "Price": tarif.price,
+                    "Private": tarif.private,
+                }
+            })
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": "No tarif with this id"
+            })
+        return HttpResponse(response, content_type='text/json')
+    
+    def post(self, request):
+
+        try:
+            payload = json.loads(request.body)
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": "Missing JSON body / Missformated JSON",
+            })
+            return HttpResponse(response, content_type='text/json')
+
+        missing = []
+        for elem in Tarif.__dict__.keys():
+            if elem not in payload and elem not in ['__module__',
+                                                    '__str__',
+                                                    '__doc__',
+                                                    '_meta',
+                                                    'DoesNotExist',
+                                                    'MultipleObjectsReturned',
+                                                    'objects',
+                                                    'id']:
+                missing.append(elem)
+
+        if len(missing) > 0:
+            response = json.dumps({
+                "success": False,
+                "data": {
+                    "Missing parameters": missing,
+                }
+            })
+            return HttpResponse(response, content_type='text/json')
+
+        tarif_id = 0
+        tarifs = Tarif.objects.all()
+        for tarif in tarifs:
+            if tarif.id >= tarif_id:
+                tarif_id = tarif.id + 1
+
+        tarif = Tarif(id=tarif_id,
+                        category=payload['category'],
+                        longname=payload['longname'],
+                        shortname=payload['shortname'],
+                        price=payload['price'],
+                        private=payload['private'],
+                        )
+        try:
+            tarif.save()
+            response = json.dumps({
+                "success": True,
+                "data": f"Tarif {tarif.shortname} - {tarif.price}€ (Private: {tarif.private}) saved, ID: {tarif_id}",
+            })
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": "Unable to save tarif"
+            })
+
+        return HttpResponse(response, content_type='text/json')
+    
+    def patch(self, request, tarif_id):
+        try:
+            payload = json.loads(request.body)
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": "Missing JSON body / Missformated JSON",
+            })
+            return HttpResponse(response, content_type='text/json')
+
+        try:
+            tarif = Tarif.objects.get(id=tarif_id)
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": f"Tarif id {tarif_id} not found",
+            })
+            return HttpResponse(response, content_type='text/json')
+
+        for key, value in payload.items():
+            if key not in ['id']:
+                setattr(tarif, key, value)
+
+        try:
+            tarif.save()
+            response = json.dumps({
+                "success": True,
+                "data": f"Tarif {tarif.shortname} {tarif.price}€ (ID: {tarif.id} - Private: {tarif.private}) saved",
+            })
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": "Unable to save tarif"
+            })
+
+        return HttpResponse(response, content_type='text/json')
+
+    def delete(self, request, tarif_id):
+        try:
+            tarif = Tarif.objects.get(id=tarif_id)
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": f"Tarif id {tarif_id} not in database",
+            })
+            return HttpResponse(response, content_type='text/json')
+        try:
+            tarif.delete()
+            response = json.dumps({
+                "success": True,
+                "data": f"Tarif {tarif_id} deleted",
+            })
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": f"Unable to delete tarif {tarif_id}"
+            })
+        return HttpResponse(response, content_type='text/json')
+class allTarifsView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        try:
+            tarifs = Tarif.objects.all()
+            tarifs_list = {}
+            for tarif in tarifs:
+                if tarif.category not in tarifs_list:
+                    tarifs_list[tarif.category] = []
+                tarifs_list[tarif.category].append({
+                    "id": tarif.id,
+                    "category": tarif.category,
+                    "longname": tarif.longname,
+                    "shortname": tarif.shortname,
+                    "price": tarif.price,
+                    "private": tarif.private,
+                })
+        
+        except:
+            response = json.dumps({
+                "success": False,
+                "data": "No tarifs"
+            })
+            return HttpResponse(response, content_type='text/json')
+
+        try :
+            for category, tarifs in tarifs_list.items():
+                tarifs_list[category] = sorted(tarifs, key=lambda tarif: tarif['price'])
+            
+            response_data = tarifs_list
+
+            response = json.dumps({
+                "success": True,
+                "data": response_data,
+            })
+
+            return HttpResponse(response, content_type='text/json')
+        except :
+            response = json.dumps({
+                "success": False,
+                "data": "Error while processing tarif sorting"
+            })
+            return HttpResponse(response, content_type='text/json')
+
+    def delete(self, request):
+        tarifs = Tarif.objects.all()
+        tarifs_count = 0
+        for tarif in tarifs:
+            tarif.delete()
+            tarifs_count += 1
+        response = json.dumps({
+            "success": True,
+            "data": f"All tarifs have been flushed ! ({tarifs_count})",
+        })
+        return HttpResponse(response, content_type='text/json')
 class connect(APIView):
     permission_classes = (IsAuthenticated,)
 
