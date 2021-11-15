@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:latest
+    hostname: database
+    domainname: docker.cluster
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 7toNhLp7kN7zLx7J
+      MYSQL_DATABASE: django_api
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: Ck77dgkoctnSpibj   
+  api:
+    depends_on:
+      - db
+    image: apresse/api-test
+    hostname: api
+    domainname: docker.cluster
+    volumes:
+      - ${PWD}/res/config_default.ini:/home/access-pc/res/config.ini
+    ports:
+      - "8080:8080"
+    restart: always
+volumes:
+  db_data: {}

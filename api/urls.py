@@ -20,3 +20,4 @@ urlpatterns = [
     path('v1/tarif/<int:tarif_id>', views_v1.tarifsView.as_view()), #GET, PATCH, DELETE
     path('v1/connect/', views_v1.connect.as_view()), #POST
 ]
+

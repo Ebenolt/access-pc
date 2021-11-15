@@ -1,4 +1,6 @@
 from django.db import models
+
+
 class Client(models.Model):
     id = models.IntegerField(primary_key=True, unique=True)
     name = models.CharField(max_length=32)
@@ -16,6 +18,7 @@ class Client(models.Model):
     def __str__(self):
         return f"[{self.id}] Client {self.lastname} {self.name} ({self.mail})"
 
+
 class Devis(models.Model):
     id = models.IntegerField(primary_key=True, unique=True)
     owner = models.IntegerField()
@@ -25,6 +28,7 @@ class Devis(models.Model):
 
     def __str__(self):
         return f"[{self.id}] Devis {self.fullid} - {self.amount}€ (on {self.date} to {self.owner})"
+
 
 class Facture(models.Model):
     id = models.IntegerField(primary_key=True, unique=True)
@@ -38,6 +42,7 @@ class Facture(models.Model):
     def __str__(self):
         return f"[{self.id}] Facture {self.fullid} - {self.amount}€ (on {self.date} to {self.owner} paid : {self.paid})"
 
+
 class Connexion(models.Model):
     id = models.IntegerField(primary_key=True, unique=True)
     user_id = models.IntegerField()
@@ -47,6 +52,7 @@ class Connexion(models.Model):
 
     def __str__(self):
         return f"[{self.id}] Connexion {self.trynumber} times on {self.ip} ({self.user_id}) - {self.date}"
+
 
 class Message(models.Model):
     id = models.IntegerField(primary_key=True, unique=True)
@@ -61,6 +67,7 @@ class Message(models.Model):
     def __str__(self):
         return f"[{self.id}] Message from {self.sender_name} ({self.sender_mail}) on {self.date}"
 
+
 class Tarif(models.Model):
     id = models.IntegerField(primary_key=True, unique=True)
     category = models.CharField(max_length=32)
@@ -68,9 +75,6 @@ class Tarif(models.Model):
     shortname = models.CharField(max_length=32)
     price = models.FloatField()
     private = models.BooleanField()
-    
+
     def __str__(self):
         return f"[{self.id}] Price for {self.shortname} in {self.category} is {self.price} (private: {self.private})"
-
-
-
