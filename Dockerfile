@@ -14,4 +14,4 @@ WORKDIR /home/access-pc
 
 RUN ["pipenv", "install"]
 
-ENTRYPOINT ["pipenv", "run", "/bin/sh" ,"/home/access-pc/start.sh"]
+ENTRYPOINT ["/bin/sh", "/home/access-pc/res/docker_start.sh"]

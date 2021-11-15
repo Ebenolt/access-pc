@@ -5,10 +5,8 @@ name = "pypi"
 
 [packages]
 Django = "*"
-requests = "*"
 djangorestframework = "*"
 bcrypt = "*"
-mysql-client = "*"
 mysqlclient = "*"
 
 [dev-packages]
