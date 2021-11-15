@@ -21,7 +21,6 @@ date_converter = dateConverter()
 
 
 class hello(APIView):
-    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         if (IsAuthenticated):
