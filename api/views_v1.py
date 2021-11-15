@@ -671,11 +671,8 @@ class allFactureView(APIView):
             "data": f"All bills have been flushed ! ({factures_count})",
         })
         return HttpResponse(response, content_type='text/json')
-<<<<<<< HEAD
 
 
-=======
->>>>>>> c8aba7c682dec564e569160eae0ffc8f75bc7e80
 class payFactureView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -692,6 +689,8 @@ class payFactureView(APIView):
             "data": "To be implemented"
         })
         return HttpResponse(response, content_type='text/json')
+
+
 class tarifsView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -715,7 +714,7 @@ class tarifsView(APIView):
                 "data": "No tarif with this id"
             })
         return HttpResponse(response, content_type='text/json')
-    
+
     def post(self, request):
 
         try:
@@ -755,12 +754,12 @@ class tarifsView(APIView):
                 tarif_id = tarif.id + 1
 
         tarif = Tarif(id=tarif_id,
-                        category=payload['category'],
-                        longname=payload['longname'],
-                        shortname=payload['shortname'],
-                        price=payload['price'],
-                        private=payload['private'],
-                        )
+                      category=payload['category'],
+                      longname=payload['longname'],
+                      shortname=payload['shortname'],
+                      price=payload['price'],
+                      private=payload['private'],
+                      )
         try:
             tarif.save()
             response = json.dumps({
@@ -774,7 +773,7 @@ class tarifsView(APIView):
             })
 
         return HttpResponse(response, content_type='text/json')
-    
+
     def patch(self, request, tarif_id):
         try:
             payload = json.loads(request.body)
@@ -812,9 +811,6 @@ class tarifsView(APIView):
 
         return HttpResponse(response, content_type='text/json')
 
-<<<<<<< HEAD
-
-=======
     def delete(self, request, tarif_id):
         try:
             tarif = Tarif.objects.get(id=tarif_id)
@@ -836,6 +832,8 @@ class tarifsView(APIView):
                 "data": f"Unable to delete tarif {tarif_id}"
             })
         return HttpResponse(response, content_type='text/json')
+
+
 class allTarifsView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -854,7 +852,7 @@ class allTarifsView(APIView):
                     "price": tarif.price,
                     "private": tarif.private,
                 })
-        
+
         except:
             response = json.dumps({
                 "success": False,
@@ -862,10 +860,11 @@ class allTarifsView(APIView):
             })
             return HttpResponse(response, content_type='text/json')
 
-        try :
+        try:
             for category, tarifs in tarifs_list.items():
-                tarifs_list[category] = sorted(tarifs, key=lambda tarif: tarif['price'])
-            
+                tarifs_list[category] = sorted(
+                    tarifs, key=lambda tarif: tarif['price'])
+
             response_data = tarifs_list
 
             response = json.dumps({
@@ -874,7 +873,7 @@ class allTarifsView(APIView):
             })
 
             return HttpResponse(response, content_type='text/json')
-        except :
+        except:
             response = json.dumps({
                 "success": False,
                 "data": "Error while processing tarif sorting"
@@ -892,7 +891,8 @@ class allTarifsView(APIView):
             "data": f"All tarifs have been flushed ! ({tarifs_count})",
         })
         return HttpResponse(response, content_type='text/json')
->>>>>>> c8aba7c682dec564e569160eae0ffc8f75bc7e80
+
+
 class connect(APIView):
     permission_classes = (IsAuthenticated,)
 
