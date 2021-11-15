@@ -6,9 +6,9 @@ ENV SHELL=/bin/sh
 
 RUN ["apt-get", "update"]
 
-RUN ["apt-get", "install", "-y", "git", "python3", "python3-pip", "default-libmysqlclient-dev", "pipenv"]
+RUN ["apt-get", "install", "-y", "python3", "python3-pip", "default-libmysqlclient-dev", "pipenv"]
 
-RUN ["git", "clone", "https://github.com/Ebenolt/access-pc"]
+COPY . /home/access-pc
 
 WORKDIR /home/access-pc
 
