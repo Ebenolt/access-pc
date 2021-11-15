@@ -13,7 +13,10 @@ cd res
 cp config.ini temp.ini
 sed -i -e "s/.*token.*/token = $token/g" temp.ini
 cp temp.ini config.ini
+echo ""
 echo "BASE API TOKEN : $token"
-echo "Now starting server at https://localhost:8080"
+echo "Now starting server at http://localhost:8080"
+echo ""
+
 cd ..
 pipenv run /bin/sh /home/access-pc/start.sh
