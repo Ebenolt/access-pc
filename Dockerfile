@@ -2,14 +2,16 @@ FROM debian
 
 WORKDIR /home
 
-COPY deploy.sh .
+ENV SHELL=/bin/sh
 
-RUN ["chmod", "+x", "/home/deploy.sh"]
+RUN ["apt-get", "update"]
 
-RUN ["/bin/sh", "-c", "/home/deploy.sh"]
+RUN ["apt-get", "install", "-y", "git", "python3", "python3-pip", "default-libmysqlclient-dev", "pipenv"]
 
-RUN ["pipenv", "shell", "--fancy"]
+RUN ["git", "clone", "https://github.com/Ebenolt/access-pc"]
 
-RUN ["chmod", "+x", "/home/access-pc/start.sh"]
+WORKDIR /home/access-pc
 
-RUN ["/bin/sh", "-c" ,"home/access-pc/start.sh"]
+RUN ["pipenv", "install"]
+
+ENTRYPOINT ["pipenv", "run", "/bin/sh" ,"/home/access-pc/start.sh"]
