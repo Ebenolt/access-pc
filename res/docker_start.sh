@@ -1,16 +1,19 @@
 #!/bin/sh
-echo "STEP 1"
 cd /home/access-pc/
-echo "STEP 2"
+sleep 60
+echo "1. Preparing Migrations"
 pipenv run python3 manage.py makemigrations
-echo "STEP 3"
+echo "2. Applying Migrations"
 pipenv run python3 manage.py migrate
-echo "STEP 4"
+echo "3. Creating superuser / token"
 echo "from django.contrib.auth.models import User; User.objects.create_superuser('django_admin', 'admin@localhost', 'pass')" | pipenv run python3 manage.py shell
-echo "STEP 5"
 token=$(pipenv run python3 manage.py drf_create_token django_admin | awk '{print $3}')
-echo "STEP 6"
-sleep 5
-sed -i -e "s/.*token.*/token = $token/g" res/config.ini
-echo "STEP 8"
+echo "4. Editing configuration"
+cd res
+cp config.ini temp.ini
+sed -i -e "s/.*token.*/token = $token/g" temp.ini
+cp temp.ini config.ini
+echo "BASE API TOKEN : $token"
+echo "Now starting server at https://localhost:8080"
+cd ..
 pipenv run /bin/sh /home/access-pc/start.sh
