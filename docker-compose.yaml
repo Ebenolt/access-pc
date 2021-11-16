@@ -17,8 +17,7 @@ services:
   api:
     depends_on:
       - db
-    # image: apresse/api-test 
-    image: api-test
+    image: apresse/api-test 
     hostname: api
     domainname: docker.cluster
     volumes:
