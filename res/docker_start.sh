@@ -1,6 +1,6 @@
 #!/bin/sh
 cd ..
-source <(grep = config.ini | sed 's/ *= */=/g' | sed 's/\r//g')
+$(grep = config.ini | sed 's/ *= */=/g' | sed 's/\r//g' > source)
 sleep 60
 echo "1. Preparing Migrations"
 pipenv run python3 manage.py makemigrations
